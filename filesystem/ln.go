@@ -7,6 +7,10 @@ import (
 	"github.com/mackrorysd/gosix/core"
 )
 
+// Package filesystem implements commands related to managing files, etc.
+
+// Ln is a command function for creating hard links or symlinks. See
+// https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ln.html.
 func Ln(proc core.Proc) int {
 	// For now, only supporting "single file" invocation
 	// and the -f flag

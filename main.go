@@ -1,3 +1,10 @@
+/*
+Gosix implements many Unix-like utilities.
+
+Each supported utility should have a symlink to the binary, and it will infer
+which utility was invoked and execute the relevant functionality.
+*/
+
 package main
 
 import (
@@ -10,6 +17,8 @@ import (
 	"github.com/mackrorysd/gosix/shell"
 )
 
+// _main should include all logic that can be abstracted away from making system
+// calls or anything else that can't be included in a unit test.
 func _main(proc core.Proc) int {
 	var f func(core.Proc) int
 	switch filepath.Base(proc.Args[0]) {
@@ -35,7 +44,7 @@ func main() {
 
 	os.Exit(_main(core.Proc{
 		Args:   os.Args,
-		Cwd:    wd,
+		Wd:     wd,
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,

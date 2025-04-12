@@ -7,6 +7,11 @@ import (
 	"github.com/mackrorysd/gosix/core"
 )
 
+// Package shell aims to eventually implement a full interactive and batch
+// shell. See
+// https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html.
+
+// Sh is the entry point for running a shell.
 func Sh(proc core.Proc) int {
 	// Minimal functionality for Dockerfile
 	if len(proc.Args) > 0 {
