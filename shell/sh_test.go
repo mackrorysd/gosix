@@ -2,7 +2,6 @@ package shell
 
 import (
 	"os"
-	"path"
 	"strings"
 	"testing"
 
@@ -10,8 +9,10 @@ import (
 )
 
 func TestEcho(t *testing.T) {
-	proc, stdout, _ := core.TestProc([]string{}, "test")
+	proc, stdout, _ := core.TestProc()
 	defer proc.CloseTest()
+
+	proc.SetInput("test")
 
 	y := Sh(proc)
 
@@ -26,17 +27,13 @@ func TestEcho(t *testing.T) {
 }
 
 func TestCommand(t *testing.T) {
-	proc, _, stderr := core.TestProc([]string{"-c", "ln", "-f", "target", "source"}, "")
+	proc, _, stderr := core.TestProc()
 	defer proc.CloseTest()
 
-	proc.Args[3] = path.Join(proc.Cwd, proc.Args[3])
-	proc.Args[4] = path.Join(proc.Cwd, proc.Args[4])
-	file, err := os.Create(proc.Args[4])
-	if err != nil {
-		t.FailNow()
-	}
-	err = file.Close()
-	if err != nil {
+	proc.SetArgs("-c", "ln", "-f", "source", "target")
+
+	file, err := os.Create(proc.ResolvePath("source"))
+	if err != nil || file.Close() != nil {
 		t.FailNow()
 	}
 

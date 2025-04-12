@@ -2,24 +2,19 @@ package filesystem
 
 import (
 	"os"
-	"path"
 	"testing"
 
 	"github.com/mackrorysd/gosix/core"
 )
 
 func TestHardlink(t *testing.T) {
-	proc, _, stderr := core.TestProc([]string{"-f", "target", "source"}, "")
+	proc, _, stderr := core.TestProc()
 	defer proc.CloseTest()
 
-	proc.Args[1] = path.Join(proc.Cwd, proc.Args[1])
-	proc.Args[2] = path.Join(proc.Cwd, proc.Args[2])
-	file, err := os.Create(proc.Args[1])
-	if err != nil {
-		t.FailNow()
-	}
-	err = file.Close()
-	if err != nil {
+	proc.SetArgs("-f", "source", "target")
+
+	file, err := os.Create(proc.ResolvePath("source"))
+	if err != nil || file.Close() != nil {
 		t.FailNow()
 	}
 

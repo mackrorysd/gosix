@@ -2,6 +2,7 @@ package core
 
 import (
 	"io"
+	"path"
 )
 
 type Proc struct {
@@ -11,4 +12,11 @@ type Proc struct {
 	Stdin  io.Reader
 	Stdout io.Writer
 	Stderr io.Writer
+}
+
+func (proc *Proc) ResolvePath(p string) string {
+	if path.IsAbs(p) {
+		return p
+	}
+	return path.Join(proc.Cwd, p)
 }

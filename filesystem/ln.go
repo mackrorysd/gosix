@@ -14,8 +14,10 @@ func Ln(proc core.Proc) int {
 		proc.Stderr.Write([]byte("Only forced linking is supported\n"))
 		return 1
 	}
-	oldname := proc.Args[1]
-	newname := proc.Args[2]
+
+	oldname := proc.ResolvePath(proc.Args[1])
+	newname := proc.ResolvePath(proc.Args[2])
+
 	err := os.Remove(newname)
 	if err != nil && !os.IsNotExist(err) {
 		proc.Stdout.Write([]byte(err.Error()))

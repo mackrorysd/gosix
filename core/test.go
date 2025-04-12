@@ -9,21 +9,33 @@ import (
 	"strings"
 )
 
-func TestProc(args []string, input string) (Proc, *bytes.Buffer, *bytes.Buffer) {
-	// TODO consider the builder pattern for this
+func TestProc() (Proc, *bytes.Buffer, *bytes.Buffer) {
 	wd := path.Join(os.TempDir(), strconv.FormatUint(rand.Uint64(), 36))
-	os.Mkdir(wd, 0700)
+	err := os.Mkdir(wd, 0700)
+	if err != nil {
+		panic("Failed to create test directory: " + err.Error())
+	}
+
 	stdout := bytes.NewBuffer(make([]byte, 1024))
 	stderr := bytes.NewBuffer(make([]byte, 1024))
+
 	proc := Proc{
-		Args:   args,
+		Args:   []string{},
 		Cwd:    wd,
 		Env:    make(map[string]string),
-		Stdin:  strings.NewReader(input),
+		Stdin:  strings.NewReader(""),
 		Stdout: stdout,
 		Stderr: stderr,
 	}
 	return proc, stdout, stderr
+}
+
+func (proc *Proc) SetArgs(args ...string) {
+	proc.Args = args
+}
+
+func (proc *Proc) SetInput(input string) {
+	proc.Stdin = strings.NewReader(input)
 }
 
 func (proc *Proc) CloseTest() {

@@ -26,9 +26,16 @@ func _main(proc core.Proc) int {
 }
 
 func main() {
-	// TODO setup environment variables, current working directory, etc.
+	// TODO setup environment variables
+
+	wd, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to resolve working directory: %s\n", err.Error())
+	}
+
 	os.Exit(_main(core.Proc{
 		Args:   os.Args,
+		Cwd:    wd,
 		Stdin:  os.Stdin,
 		Stdout: os.Stdout,
 		Stderr: os.Stderr,
