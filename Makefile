@@ -11,7 +11,7 @@ image: gosix
 
 test:
 	go test -cover \
-		github.com/mackrorysd/gosix/filesystem \
+		github.com/mackrorysd/gosix/utilities \
 		github.com/mackrorysd/gosix/shell \
 		github.com/mackrorysd/gosix
 

@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 
 	"github.com/mackrorysd/gosix/core"
-	"github.com/mackrorysd/gosix/filesystem"
 	"github.com/mackrorysd/gosix/shell"
+	"github.com/mackrorysd/gosix/utilities"
 )
 
 // _main should include all logic that can be abstracted away from making system
@@ -23,7 +23,7 @@ func _main(proc core.Proc) int {
 	var f func(core.Proc) int
 	switch filepath.Base(proc.Args[0]) {
 	case "ln":
-		f = filesystem.Ln
+		f = utilities.Ln
 	case "sh":
 		f = shell.Sh
 	default:
