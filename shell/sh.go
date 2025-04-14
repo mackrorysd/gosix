@@ -3,6 +3,7 @@ package shell
 import (
 	"bufio"
 	"os/exec"
+	"strings"
 
 	"github.com/mackrorysd/gosix/core"
 )
@@ -13,7 +14,6 @@ import (
 
 // Sh is the entry point for running a shell.
 func Sh(proc core.Proc) int {
-	// Minimal functionality for Dockerfile
 	if len(proc.Args) > 0 {
 		if proc.Args[0] != "-c" {
 			proc.Stderr.Write([]byte("Only -c is supported\n"))
@@ -30,10 +30,40 @@ func Sh(proc core.Proc) int {
 		return 3
 	}
 
-	// If there is input, just echo it for now
+	// Interactive REPL
 	reader := bufio.NewReader(proc.Stdin)
-	proc.Stdout.Write([]byte("$ "))
-	text, _ := reader.ReadString('\n')
-	proc.Stdout.Write([]byte(text + "\n"))
-	return 0
+	for {
+		prompt(proc)
+
+		// TODO this needs a parser to handle escape characters, etc.
+		command, _ := reader.ReadString('\n')
+		// TODO trim excess whitespace internally
+		command = strings.Trim(command, "\n\t ")
+		tokens := strings.Split(command, " ")
+
+		switch tokens[0] {
+		case "exit":
+			return 0
+		case "echo":
+			// TODO: this has flags we need to support
+			proc.Out(strings.Join(tokens[1:], " "))
+		default:
+			cmd := exec.Command(tokens[0], tokens[1:]...)
+
+			cmd.Stdin = proc.Stdin
+			cmd.Stdout = proc.Stdout
+			cmd.Stderr = proc.Stderr
+
+			err := cmd.Run()
+			if err != nil {
+				proc.Err("Error running process: " + err.Error())
+			}
+		}
+	}
+}
+
+func prompt(proc core.Proc) {
+	prompt := proc.Wd + "> "
+	// Don't use proc.Out() because we don't want a newline
+	proc.Stdout.Write([]byte(prompt))
 }

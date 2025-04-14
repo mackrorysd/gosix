@@ -8,4 +8,7 @@ COPY gosix /bin/sh
 RUN /bin/ln -fs /gosix /bin/ln
 RUN /bin/ln -fs /gosix /bin/sh 
 
+# all other utilities
+COPY gosix /bin/cat
+
 CMD ["/bin/sh"]

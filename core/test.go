@@ -21,8 +21,8 @@ func TestProc() (proc Proc, stdout *bytes.Buffer, stderr *bytes.Buffer) {
 		panic("Failed to create test directory: " + err.Error())
 	}
 
-	stdout = bytes.NewBuffer(make([]byte, 1024))
-	stderr = bytes.NewBuffer(make([]byte, 1024))
+	stdout = bytes.NewBuffer(make([]byte, BufferSize))
+	stderr = bytes.NewBuffer(make([]byte, BufferSize))
 
 	proc = Proc{
 		Args:   []string{},

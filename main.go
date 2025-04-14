@@ -22,6 +22,8 @@ import (
 func _main(proc core.Proc) int {
 	var f func(core.Proc) int
 	switch filepath.Base(proc.Args[0]) {
+	case "cat":
+		f = utilities.Cat
 	case "ln":
 		f = utilities.Ln
 	case "sh":

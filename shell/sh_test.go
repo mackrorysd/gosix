@@ -12,7 +12,7 @@ func TestEcho(t *testing.T) {
 	proc, stdout, _ := core.TestProc()
 	defer proc.CloseTest()
 
-	proc.SetInput("test")
+	proc.SetInput("echo test\nexit\n")
 
 	y := Sh(proc)
 
@@ -20,9 +20,11 @@ func TestEcho(t *testing.T) {
 		t.Errorf("shell exited with non-zero code: %d", y)
 	}
 
-	output := stdout.String()
-	if strings.Trim(output, "\x00\n") != "$ test" {
-		t.Errorf("shell did not echo text back: '%s'", []byte(output))
+	raw := strings.Trim(stdout.String(), "\x00")
+	lines := strings.Split(raw, "\n")
+	output := strings.Split(lines[0], "> ")[1]
+	if strings.Trim(output, " ") != "test" {
+		t.Errorf("shell did not echo text back: %d '%s'", len(raw), []byte(raw))
 	}
 }
 

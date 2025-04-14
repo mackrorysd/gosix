@@ -9,8 +9,15 @@ import (
 // other packages.
 
 // ExitInvalidArgs is a standard exit status code for when CLI arguments are
-// not valid.
+// not valid, as determined while parsing.
 const ExitInvalidArgs = 1
+
+// ExitFileError is a standard exit status code for when specified paths are
+// unusable because they do not exist or do not meet the requirements.
+const ExitFileError = 2
+
+// BufferSize is a standard number of bytes to use for buffers
+const BufferSize = 4096
 
 // A Proc provides all the context necessary for the interface between the OS
 // and a process.
@@ -33,12 +40,20 @@ func (proc *Proc) ResolvePath(p string) string {
 	return path.Join(proc.Wd, p)
 }
 
-// Out is a convenience for writing strings to Stdout
+// Out is a convenience for writing strings to Stdout. It enforces a convention
+// that text output end with a new-line character.
 func (proc *Proc) Out(txt string) {
-	proc.Stderr.Write([]byte(txt))
+	if txt[len(txt)-1] != '\n' {
+		txt += "\n"
+	}
+	proc.Stdout.Write([]byte(txt))
 }
 
-// Err is a convenience to writing strings to Stderr
+// Err is a convenience for writing strings to Stderr. It enforces a convention
+// that text output end with a new-line character.
 func (proc *Proc) Err(txt string) {
+	if txt[len(txt)-1] != '\n' {
+		txt += "\n"
+	}
 	proc.Stderr.Write([]byte(txt))
 }
