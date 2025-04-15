@@ -68,8 +68,14 @@ func run(proc *core.Proc, command string) (int, bool) {
 		}
 		return 0, false
 	default:
-		exe, err := filepath.EvalSymlinks(proc.ResolvePath(tokens[0]))
-		// See if args[0] can be overridden with the pre-resolution value
+		// TODO do variable substitution on tokens, or at parsing time
+
+		exe, err := exec.LookPath(tokens[0])
+		if err != nil {
+			proc.Err("Error looking in path: " + err.Error())
+			return 1, false
+		}
+		exe, err = filepath.EvalSymlinks(exe)
 		if err != nil {
 			proc.Err("Error resolving executable: " + err.Error())
 			return 1, false
