@@ -3,6 +3,7 @@ package shell
 import (
 	"bufio"
 	"os/exec"
+	filepath "path/filepath"
 	"strings"
 
 	"github.com/mackrorysd/gosix/core"
@@ -16,49 +17,80 @@ import (
 func Sh(proc core.Proc) int {
 	if len(proc.Args) > 0 {
 		if proc.Args[0] != "-c" {
-			proc.Stderr.Write([]byte("Only -c is supported\n"))
+			proc.Err("Only -c is supported")
 			return 1
 		}
 		if len(proc.Args) < 2 {
-			proc.Stderr.Write([]byte("No command provided"))
+			proc.Err("No command provided")
 			return 2
 		}
-		err := exec.Command(proc.Args[1], proc.Args[2:]...).Run()
-		if err != nil {
-			return 0
-		}
-		return 3
+		y, _ := run(&proc, strings.Join(proc.Args[1:], " "))
+		return y
 	}
 
 	// Interactive REPL
+	var y int
 	reader := bufio.NewReader(proc.Stdin)
-	for {
+	for exit := false; exit == false; {
 		prompt(proc)
 
 		// TODO this needs a parser to handle escape characters, etc.
 		command, _ := reader.ReadString('\n')
-		// TODO trim excess whitespace internally
-		command = strings.Trim(command, "\n\t ")
-		tokens := strings.Split(command, " ")
+		y, exit = run(&proc, command)
+	}
+	return y
+}
 
-		switch tokens[0] {
-		case "exit":
-			return 0
-		case "echo":
-			// TODO: this has flags we need to support
-			proc.Out(strings.Join(tokens[1:], " "))
-		default:
-			cmd := exec.Command(tokens[0], tokens[1:]...)
+func run(proc *core.Proc, command string) (int, bool) {
+	// TODO trim excess whitespace internally
+	command = strings.Trim(command, "\n\t ")
+	tokens := strings.Split(command, " ")
 
-			cmd.Stdin = proc.Stdin
-			cmd.Stdout = proc.Stdout
-			cmd.Stderr = proc.Stderr
-
-			err := cmd.Run()
-			if err != nil {
-				proc.Err("Error running process: " + err.Error())
-			}
+	switch tokens[0] {
+	case "cd":
+		// TODO: this has other flags
+		// See https://pubs.opengroup.org/onlinepubs/9799919799/utilities/cd.html
+		if len(tokens) > 2 {
+			proc.Err("cd only takes one parameter; ignoring all by the first")
 		}
+		// TODO: ensure it exists
+		proc.Wd = proc.ResolvePath(tokens[1])
+		return 0, false
+	case "exit":
+		return 0, true
+	case "echo":
+		// See https://pubs.opengroup.org/onlinepubs/9799919799/utilities/echo.html
+		// The Shell Command Language spec has requirements around built-ins
+		if len(tokens) == 1 {
+			proc.Out("")
+		} else {
+			proc.Out(strings.Join(tokens[1:], " "))
+		}
+		return 0, false
+	default:
+		exe, err := filepath.EvalSymlinks(proc.ResolvePath(tokens[0]))
+		// See if args[0] can be overridden with the pre-resolution value
+		if err != nil {
+			proc.Err("Error resolving executable: " + err.Error())
+			return 1, false
+		}
+		cmd := exec.Command(exe, tokens[1:]...)
+
+		// This is probably unsafe, but this allows the symlink names to be
+		// passed in instead of the resolved, absolute path.
+		cmd.Args[0] = tokens[0]
+
+		cmd.Dir = proc.Wd
+		cmd.Stdin = proc.Stdin
+		cmd.Stdout = proc.Stdout
+		cmd.Stderr = proc.Stderr
+
+		err = cmd.Run()
+		if err != nil {
+			proc.Err("Error running process: " + err.Error())
+			return 1, false
+		}
+		return cmd.ProcessState.ExitCode(), false
 	}
 }
 

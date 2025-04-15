@@ -47,7 +47,7 @@ func testLinkFile(t *testing.T, symlink bool, force bool) {
 	}
 
 	if y != 0 {
-		t.Errorf("`ln` exited with non-zero code: %d, %s", y, stderr.String())
+		t.Errorf("ln exited with non-zero code: %d, %s", y, stderr.String())
 	}
 }
 

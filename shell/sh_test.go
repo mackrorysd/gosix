@@ -32,7 +32,7 @@ func TestCommand(t *testing.T) {
 	proc, _, stderr := core.TestProc()
 	defer proc.CloseTest()
 
-	proc.SetArgs("-c", "ln", "-f", "source", "target")
+	proc.SetArgs("-c", "/bin/ln", "-f", "source", "target")
 
 	file, err := os.Create(proc.ResolvePath("source"))
 	if err != nil || file.Close() != nil {

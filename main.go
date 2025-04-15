@@ -24,12 +24,22 @@ func _main(proc core.Proc) int {
 	switch filepath.Base(proc.Args[0]) {
 	case "cat":
 		f = utilities.Cat
+	case "false":
+		f = utilities.False
 	case "ln":
 		f = utilities.Ln
+	case "ls":
+		f = utilities.Ls
+	case "mkdir":
+		f = utilities.Mkdir
+	case "rm":
+		f = utilities.Rm
 	case "sh":
 		f = shell.Sh
+	case "true":
+		f = utilities.True
 	default:
-		proc.Stdout.Write([]byte(fmt.Sprintf("Unrecognized command: %s", proc.Args[0])))
+		proc.Out("Unrecognized command: " + proc.Args[0])
 		return 1
 	}
 	proc.Args = proc.Args[1:]

@@ -8,6 +8,9 @@ import (
 // Package core defines types and functionality expected to be common across
 // other packages.
 
+// ExitSuccess is a standard exit status code for when there is no error.
+const ExitSuccess = 0
+
 // ExitInvalidArgs is a standard exit status code for when CLI arguments are
 // not valid, as determined while parsing.
 const ExitInvalidArgs = 1
@@ -43,7 +46,7 @@ func (proc *Proc) ResolvePath(p string) string {
 // Out is a convenience for writing strings to Stdout. It enforces a convention
 // that text output end with a new-line character.
 func (proc *Proc) Out(txt string) {
-	if txt[len(txt)-1] != '\n' {
+	if len(txt) == 0 || txt[len(txt)-1] != '\n' {
 		txt += "\n"
 	}
 	proc.Stdout.Write([]byte(txt))
