@@ -2,6 +2,7 @@ package utilities
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,21 +17,51 @@ import (
 //
 // [IEEE Std 1003.1-2024]: https://pubs.opengroup.org/onlinepubs/9799919799/utilities/ls.html
 func Ls(proc core.Proc) int {
-	// Right now this assumes -l and the current working directory
+	useLongFormat := false
+	paths := []string{}
 
-	entries, err := os.ReadDir(proc.ResolvePath(proc.Wd)) // Is this double resolution?
-	if err != nil {
-		proc.Err("Error reading directory: " + err.Error())
-		return core.ExitFileError
+	for _, arg := range proc.Args {
+		if arg[0] == '-' {
+			// NOTE: if len(arg) == 1, that has special meaning for other utilities
+			// See https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap12.html#tag_12_02
+			for i := 1; i < len(arg); i++ {
+				switch arg[i] {
+				case 'l':
+					useLongFormat = true
+				default:
+					proc.Err("Unrecognized flag: " + string([]byte{arg[i]}))
+					return core.ExitInvalidArgs
+				}
+			}
+		} else {
+			paths = append(paths, arg)
+		}
 	}
+	if len(paths) == 0 {
+		paths = []string{proc.Wd}
+	}
+
+	for _, path := range paths {
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			proc.Err("Error reading directory: " + err.Error())
+			return core.ExitFileError
+		}
+		if useLongFormat {
+			longFormat(proc, entries)
+		} else {
+			shortFormat(proc, entries)
+		}
+	}
+	return core.ExitSuccess
+}
+
+func longFormat(proc core.Proc, entries []fs.DirEntry) {
 	sizeWidth := 1
 	linksWidth := 1
 	ownerWidth := 1
 	groupWidth := 1
 	for _, entry := range entries {
-		links := 1 // TODO
-		linksWidth = max(linksWidth, len(strconv.Itoa(links)))
-
 		info, err := entry.Info()
 		if err == nil {
 			sizeWidth = max(sizeWidth, len(strconv.FormatInt(info.Size(), 10)))
@@ -78,7 +109,13 @@ func Ls(proc core.Proc) int {
 		line := fmt.Sprintf(longFormat, mode, links, owner, group, size, mod, name)
 		proc.Out(line)
 	}
-	return core.ExitSuccess
+}
+
+func shortFormat(proc core.Proc, entries []fs.DirEntry) {
+	for _, entry := range entries {
+		name := entry.Name()
+		proc.Out(name)
+	}
 }
 
 const (

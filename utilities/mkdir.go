@@ -24,7 +24,6 @@ func Mkdir(proc core.Proc) int {
 			intermediate = true
 			continue
 		}
-		// Technically once we encounter a dir this could stop parsing flags
 		dirs = append(dirs, arg)
 	}
 
