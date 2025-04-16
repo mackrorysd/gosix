@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/mackrorysd/gosix/term"
 	"github.com/mackrorysd/gosix/tests"
 )
 
@@ -21,10 +22,11 @@ func TestEcho(t *testing.T) {
 	}
 
 	raw := proc.Out()
-	lines := strings.Split(raw, "\n")
+	text := term.StripEscapeCodes(raw)
+	lines := strings.Split(text, "\n")
 	output := strings.Split(lines[0], "> ")[1]
 	if strings.Trim(output, " ") != "test" {
-		t.Errorf("shell did not echo text back: %d '%s'", len(raw), []byte(raw))
+		t.Errorf("shell did not echo text back: '%s'", raw)
 	}
 }
 

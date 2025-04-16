@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	"github.com/mackrorysd/gosix/core"
+	"github.com/mackrorysd/gosix/term"
 )
 
 // Package shell aims to eventually implement a full interactive and batch
-// shell. See
-// https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html.
+// shell. See [IEEE Std 1003.1-2024].
+//
+// [IEEE Std 1003.1-2024]: https://pubs.opengroup.org/onlinepubs/9799919799/utilities/sh.html.
 
 // Sh is the entry point for running a shell.
 func Sh(proc core.Proc) int {
@@ -101,7 +103,10 @@ func run(proc *core.Proc, command string) (int, bool) {
 }
 
 func prompt(proc core.Proc) {
-	prompt := proc.Wd + "> "
+	prompt := term.SGR(term.CyanForeground) +
+		proc.Wd + "> " +
+		term.SGR(term.Reset)
+
 	// Don't use proc.Out() because we don't want a newline
 	proc.Stdout.Write([]byte(prompt))
 }
