@@ -3,41 +3,36 @@ package utilities
 import (
 	"testing"
 
-	"github.com/mackrorysd/gosix/core"
+	"github.com/mackrorysd/gosix/tests"
 )
 
 func TestMkdir(t *testing.T) {
-	proc, _, _ := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
-	proc.SetArgs("dir1/dir2")
-	y := Mkdir(proc)
+	y := ctx.Proc(Mkdir, "dir1/dir2").Exec()
 	if y == 0 {
 		t.Error("mkdir inside a non-existent directory should have failed")
 	}
 
-	proc.SetArgs("dir1")
-	y = Mkdir(proc)
+	y = ctx.Proc(Mkdir, "dir1").Exec()
 	if y != 0 {
 		t.Error("mkdir of a single directory should have succeeded")
 		t.FailNow()
 	}
 
-	proc.SetArgs("dir1/dir2")
-	y = Mkdir(proc)
+	y = ctx.Proc(Mkdir, "dir1/dir2").Exec()
 	if y != 0 {
 		t.Error("mkdir of a child directory should have succeeded")
 	}
 
-	proc.SetArgs("-p", "dir3/dir4")
-	y = Mkdir(proc)
+	y = ctx.Proc(Mkdir, "-p", "dir3/dir4").Exec()
 	if y != 0 {
 		t.Error("mkdir -p nested directories should have succeeded")
 		t.FailNow()
 	}
 
-	proc.SetArgs("dir3/dir4/dir5")
-	y = Mkdir(proc)
+	y = ctx.Proc(Mkdir, "dir3/dir4/dir5").Exec()
 	if y != 0 {
 		t.Error("mkdir inside of nested directories should have succeeded")
 	}

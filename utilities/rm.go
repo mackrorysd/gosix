@@ -57,6 +57,16 @@ func Rm(proc core.Proc) int {
 		if recursive {
 			err = os.RemoveAll(path)
 		} else {
+			var stat os.FileInfo
+			stat, err = os.Stat(path)
+			if err != nil {
+				proc.Err("Error stating path: " + err.Error())
+				return core.ExitFileError
+			}
+			if stat.IsDir() {
+				proc.Err("Cannot remove directory: " + path)
+				return core.ExitInvalidArgs
+			}
 			err = os.Remove(path)
 		}
 		if err != nil {

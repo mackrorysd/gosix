@@ -5,22 +5,22 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mackrorysd/gosix/core"
+	"github.com/mackrorysd/gosix/tests"
 )
 
 func TestEcho(t *testing.T) {
-	proc, stdout, _ := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
+	proc := ctx.Proc(Sh)
 	proc.SetInput("echo test\nexit\n")
 
-	y := Sh(proc)
-
+	y := proc.Exec()
 	if y != 0 {
 		t.Errorf("shell exited with non-zero code: %d", y)
 	}
 
-	raw := strings.Trim(stdout.String(), "\x00")
+	raw := proc.Out()
 	lines := strings.Split(raw, "\n")
 	output := strings.Split(lines[0], "> ")[1]
 	if strings.Trim(output, " ") != "test" {
@@ -29,19 +29,19 @@ func TestEcho(t *testing.T) {
 }
 
 func TestCommand(t *testing.T) {
-	proc, _, stderr := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
-	proc.SetArgs("-c", "ln", "-f", "source", "target")
+	proc := ctx.Proc(Sh, "-c", "ln", "-f", "source", "target")
 
 	file, err := os.Create(proc.ResolvePath("source"))
 	if err != nil || file.Close() != nil {
 		t.FailNow()
 	}
 
-	y := Sh(proc)
+	y := proc.Exec()
 
 	if y != 0 {
-		t.Errorf("`ln` exited with non-zero code: %d, %s", y, stderr.String())
+		t.Errorf("ln exited with non-zero code: %d, %s", y, proc.Err())
 	}
 }

@@ -4,13 +4,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mackrorysd/gosix/core"
 	"github.com/mackrorysd/gosix/tests"
 )
 
 func testLinkFile(t *testing.T, symlink bool, force bool) {
-	proc, _, stderr := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
 	args := []string{}
 	if symlink {
@@ -20,23 +19,24 @@ func testLinkFile(t *testing.T, symlink bool, force bool) {
 		args = append(args, "-f")
 	}
 	args = append(args, "source", "target")
-	proc.SetArgs(args...)
+	proc := ctx.Proc(Ln, args...)
 
-	tests.CreateFile(t, proc.ResolvePath("source"), tests.TestString)
+	ctx.CreateFile("source", tests.TestString)
 
 	if force {
-		tests.CreateFile(t, proc.ResolvePath("target"), "")
+		ctx.CreateFile("target", "")
 	} else {
-		tests.CreateFile(t, proc.ResolvePath("target"), "")
-		y := Ln(proc)
+		ctx.CreateFile("target", "")
+		y := proc.Exec()
 		if y == 0 {
 			t.Errorf("ln did not fail when target exists and link was not forced")
 			t.FailNow()
 		}
-		tests.DeleteFile(t, proc.ResolvePath("target"))
+		proc = ctx.Proc(Ln, args...)
+		ctx.DeleteFile("target")
 	}
 
-	y := Ln(proc)
+	y := proc.Exec()
 
 	content, err := os.ReadFile(proc.ResolvePath("target"))
 	if err != nil {
@@ -47,7 +47,7 @@ func testLinkFile(t *testing.T, symlink bool, force bool) {
 	}
 
 	if y != 0 {
-		t.Errorf("ln exited with non-zero code: %d, %s", y, stderr.String())
+		t.Errorf("ln exited with non-zero code: %d, %s", y, proc.Err())
 	}
 }
 

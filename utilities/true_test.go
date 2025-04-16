@@ -3,15 +3,16 @@ package utilities
 import (
 	"testing"
 
-	"github.com/mackrorysd/gosix/core"
+	"github.com/mackrorysd/gosix/tests"
 )
 
 func TestTrue(t *testing.T) {
-	proc, _, _ := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
-	y := True(proc)
+	y := ctx.Proc(True).Exec()
 	if y != 0 {
 		t.Error("true must exit with zero status code!")
 	}
+
 }

@@ -3,31 +3,29 @@ package utilities
 import (
 	"testing"
 
-	"github.com/mackrorysd/gosix/core"
 	"github.com/mackrorysd/gosix/tests"
 )
 
 func TestRm(t *testing.T) {
-	proc, _, _ := core.TestProc()
-	defer proc.CloseTest()
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
-	tests.InitFS(t, proc.Wd, tests.TestFS)
+	ctx.InitFS(tests.TestFS)
 
-	proc.SetArgs("top_file")
-	y := Rm(proc)
+	y := ctx.Proc(Rm, "top_file").Exec()
 	if y != 0 {
 		t.Error("rm of normal file should have succeeded")
 	}
 
-	proc.SetArgs("top_dir")
-	y = Rm(proc)
+	proc := ctx.Proc(Rm, "top_dir")
+	y = proc.Exec()
 	if y == 0 {
+		t.Error(proc.Err())
 		t.Error("rm of a directory without -r should have failed")
 		t.FailNow()
 	}
 
-	proc.SetArgs("-r", "top_dir")
-	y = Rm(proc)
+	y = ctx.Proc(Rm, "-r", "top_dir").Exec()
 	if y != 0 {
 		t.Error("rm of a directory with -r should have succeeded")
 	}

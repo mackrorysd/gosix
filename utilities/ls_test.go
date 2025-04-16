@@ -5,17 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mackrorysd/gosix/core"
 	"github.com/mackrorysd/gosix/tests"
 )
 
-func TestLS(t *testing.T) {
-	proc, _, _ := core.TestProc()
-	defer proc.CloseTest()
+func TestLs(t *testing.T) {
+	ctx := tests.NewTestContext(t)
+	defer ctx.Close()
 
-	tests.InitFS(t, proc.Wd, tests.TestFS)
-
-	y := Ls(proc)
+	ctx.InitFS(tests.TestFS)
+	y := ctx.Proc(Ls).Exec()
 	if y != 0 {
 		t.Errorf("ls exited with non-zero code: %d", y)
 	}
