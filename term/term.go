@@ -11,6 +11,7 @@ import (
 //
 // [Wikipedia] https://en.wikipedia.org/wiki/ANSI_escape_code
 
+// SGR attributes
 const (
 	Reset = "0"
 

@@ -22,8 +22,12 @@ import (
 func _main(proc core.Proc) int {
 	var f func(core.Proc) int
 	switch filepath.Base(proc.Args[0]) {
+	case "basename":
+		f = utilities.Basename
 	case "cat":
 		f = utilities.Cat
+	case "dirname":
+		f = utilities.Dirname
 	case "false":
 		f = utilities.False
 	case "ln":
@@ -38,6 +42,8 @@ func _main(proc core.Proc) int {
 		f = shell.Sh
 	case "sleep":
 		f = utilities.Sleep
+	case "tee":
+		f = utilities.Tee
 	case "true":
 		f = utilities.True
 	default:

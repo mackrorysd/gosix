@@ -32,9 +32,9 @@ func Mkdir(proc core.Proc) int {
 		var err error
 		if intermediate {
 			// There may be nuances to how the mode is handled in this scenario
-			err = os.MkdirAll(proc.ResolvePath(path), fs.ModeDir|0700)
+			err = os.MkdirAll(path, fs.ModeDir|0700)
 		} else {
-			err = os.Mkdir(proc.ResolvePath(path), fs.ModeDir|0700)
+			err = os.Mkdir(path, fs.ModeDir|0700)
 		}
 		if err != nil {
 			proc.Err("Failed to create directory: " + err.Error())
