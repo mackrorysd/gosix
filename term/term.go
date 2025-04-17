@@ -11,6 +11,10 @@ import (
 //
 // [Wikipedia] https://en.wikipedia.org/wiki/ANSI_escape_code
 
+const Escape = "\033"
+const CleanScreen = Escape + "[2J"
+const CursorHome = Escape + "[H"
+
 // SGR attributes
 const (
 	Reset = "0"
@@ -114,7 +118,7 @@ const (
 // SGR implements the SelectGraphicRendition control function for selecting
 // character attributes such as color and various styles and effects.
 func SGR(attributes ...string) string {
-	return "\033[" + strings.Join(attributes, ";") + "m"
+	return Escape + "[" + strings.Join(attributes, ";") + "m"
 }
 
 // ControlCodeRegexp should match any of the supported control codes so that

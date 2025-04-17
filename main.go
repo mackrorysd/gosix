@@ -26,6 +26,8 @@ func _main(proc core.Proc) int {
 		f = utilities.Basename
 	case "cat":
 		f = utilities.Cat
+	case "clear":
+		f = shell.Clear
 	case "dirname":
 		f = utilities.Dirname
 	case "false":
