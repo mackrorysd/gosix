@@ -28,6 +28,8 @@ func _main(proc core.Proc) int {
 		f = utilities.Cat
 	case "clear":
 		f = shell.Clear
+	case "date":
+		f = utilities.Date
 	case "dirname":
 		f = utilities.Dirname
 	case "false":

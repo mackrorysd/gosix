@@ -14,6 +14,7 @@ RUN /bin/ln -fs /bin/gosix /bin/sh
 RUN /bin/ln -s /bin/gosix /bin/basename
 RUN /bin/ln -s /bin/gosix /bin/cat
 RUN /bin/ln -s /bin/gosix /bin/clear
+RUN /bin/ln -s /bin/gosix /bin/date
 RUN /bin/ln -s /bin/gosix /bin/dirname
 RUN /bin/ln -s /bin/gosix /bin/false
 RUN /bin/ln -s /bin/gosix /bin/ls
