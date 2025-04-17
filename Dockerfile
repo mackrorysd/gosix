@@ -16,6 +16,7 @@ RUN /bin/ln -s /gosix /bin/false
 RUN /bin/ln -s /gosix /bin/ls
 RUN /bin/ln -s /gosix /bin/mkdir
 RUN /bin/ln -s /gosix /bin/rm
+RUN /bin/ln -s /gosix /bin/sleep
 RUN /bin/ln -s /gosix /bin/true
 
 CMD ["/bin/sh"]

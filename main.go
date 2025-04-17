@@ -36,6 +36,8 @@ func _main(proc core.Proc) int {
 		f = utilities.Rm
 	case "sh":
 		f = shell.Sh
+	case "sleep":
+		f = utilities.Sleep
 	case "true":
 		f = utilities.True
 	default:
